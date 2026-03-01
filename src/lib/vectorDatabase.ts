@@ -75,7 +75,15 @@ export class NextLeapDB {
             };
         }).filter(c => c.content.length > 10);
 
-        fs.writeFileSync(this.dbPath, JSON.stringify(this.chunks, null, 2));
+        // Only write to disk if we are in a local environment
+        // Vercel has a read-only filesystem
+        if (process.env.NODE_ENV !== 'production') {
+            try {
+                fs.writeFileSync(this.dbPath, JSON.stringify(this.chunks, null, 2));
+            } catch (e) {
+                console.log("Could not write DB to disk (likely production environment)");
+            }
+        }
     }
 
     private load() {
