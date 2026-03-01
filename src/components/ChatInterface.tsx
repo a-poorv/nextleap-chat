@@ -120,19 +120,35 @@ export default function ChatInterface() {
         console.log(`Feedback received for ${id}: ${type}`);
     };
 
-    const handleNewChat = () => {
-        // Only save to history if there is at least one user message
-        if (messages.length > 1) {
-            const firstUserMessage = messages.find(m => m.role === 'user');
-            const newSession: ChatSession = {
-                id: currentSessionId,
-                title: firstUserMessage ? firstUserMessage.content.substring(0, 30) + '...' : 'New Chat',
-                messages: [...messages],
-                timestamp: new Date(),
-            };
-            setSessions(prev => [newSession, ...prev]);
-        }
+    const upsertSession = (id: string, msgs: Message[]) => {
+        if (msgs.length <= 1) return; // Don't save empty/initial greetings
 
+        const firstUserMessage = msgs.find(m => m.role === 'user');
+        const sessionTitle = firstUserMessage ?
+            (firstUserMessage.content.length > 25 ? firstUserMessage.content.substring(0, 25) + '...' : firstUserMessage.content)
+            : 'New Chat';
+
+        const sessionData: ChatSession = {
+            id,
+            title: sessionTitle,
+            messages: [...msgs],
+            timestamp: new Date(),
+        };
+
+        setSessions(prev => {
+            const exists = prev.find(s => s.id === id);
+            if (exists) {
+                // Update existing: Replace it and move to top
+                const others = prev.filter(s => s.id !== id);
+                return [sessionData, ...others];
+            }
+            // Add new to top
+            return [sessionData, ...prev];
+        });
+    };
+
+    const handleNewChat = () => {
+        upsertSession(currentSessionId, messages);
         setMessages([initialMessage]);
         setFeedback({});
         setInput('');
@@ -140,22 +156,10 @@ export default function ChatInterface() {
     };
 
     const loadSession = (session: ChatSession) => {
-        // Save current session first if needed
-        if (messages.length > 1) {
-            const firstUserMessage = messages.find(m => m.role === 'user');
-            const currentSession: ChatSession = {
-                id: currentSessionId,
-                title: firstUserMessage ? firstUserMessage.content.substring(0, 30) + '...' : 'Ongoing Chat',
-                messages: [...messages],
-                timestamp: new Date(),
-            };
+        // Save current session progress before switching
+        upsertSession(currentSessionId, messages);
 
-            setSessions(prev => {
-                const filtered = prev.filter(s => s.id !== currentSessionId);
-                return [currentSession, ...filtered];
-            });
-        }
-
+        // Load the target session
         setMessages(session.messages);
         setCurrentSessionId(session.id);
         setFeedback({});
