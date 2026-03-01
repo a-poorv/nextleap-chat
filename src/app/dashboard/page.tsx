@@ -56,7 +56,7 @@ export default function LinkedInShowcase() {
                     </div>
                     <span className="font-bold text-xl tracking-tight text-white uppercase italic">The AI Agent <span className="text-primary">Journal</span></span>
                 </div>
-                <Link href="/" className="bg-primary text-white py-2 px-5 rounded-xl hover:bg-accent transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2">
+                <Link href="https://nextleap-chat.vercel.app" target="_blank" className="bg-primary text-white py-2 px-5 rounded-xl hover:bg-accent transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-2">
                     Live Chatbot <ArrowRight size={14} />
                 </Link>
             </nav>
@@ -257,7 +257,7 @@ export default function LinkedInShowcase() {
                 >
                     <h2 className="text-4xl font-black mb-6 italic tracking-tight">The Future of <span className="text-primary">Learning</span> is Contextual</h2>
                     <p className="text-foreground/50 mb-10 font-medium">Experience the system we just described.</p>
-                    <Link href="/" className="inline-flex items-center gap-4 bg-primary text-white py-4 px-10 rounded-2xl hover:bg-accent transition-all font-black uppercase text-sm tracking-widest shadow-2xl shadow-primary/30 active:scale-95 group">
+                    <Link href="https://nextleap-chat.vercel.app" target="_blank" className="inline-flex items-center gap-4 bg-primary text-white py-4 px-10 rounded-2xl hover:bg-accent transition-all font-black uppercase text-sm tracking-widest shadow-2xl shadow-primary/30 active:scale-95 group">
                         Enter Chatbot <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </motion.div>
