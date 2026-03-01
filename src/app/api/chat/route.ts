@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         // 1. Database Connection & Synchronization
         // We connect to the NEW    // 1. Database Connection & Synchronization
         const db = NextLeapDB.getInstance();
-        const kbPath = path.join(process.cwd(), 'src/data/nextleap_kb_v2.md');
+        const kbPath = path.join(process.cwd(), 'src/data/nextleap_kb_final.md');
 
         // Always sync the database with the latest Markdown file
         db.ingest(kbPath);
