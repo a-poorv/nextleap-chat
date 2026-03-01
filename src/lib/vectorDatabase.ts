@@ -87,8 +87,12 @@ export class NextLeapDB {
     }
 
     private load() {
-        if (fs.existsSync(this.dbPath)) {
-            this.chunks = JSON.parse(fs.readFileSync(this.dbPath, 'utf8'));
+        try {
+            if (fs.existsSync(this.dbPath)) {
+                this.chunks = JSON.parse(fs.readFileSync(this.dbPath, 'utf8'));
+            }
+        } catch (e) {
+            console.log("Could not load DB from disk, will re-ingest.");
         }
     }
 
