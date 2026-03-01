@@ -31,7 +31,25 @@ export default function ChatInterface() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [feedback, setFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const placeholders = [
+        "Ask about Product Management...",
+        "Who is teaching the UX course?",
+        "What is the salary hike after Data Analytics?",
+        "Tell me about the PM mentors from Meta...",
+        "Are there any EMI options available?",
+        "Can I join with 2 years of sales experience?",
+        "What tools are taught in GenAI bootcamp?"
+    ];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -243,18 +261,34 @@ export default function ChatInterface() {
                 {/* Input Bar */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 glass-dark border-t border-border/50">
                     <div className="max-w-4xl mx-auto relative">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Ask about courses, instructors, or hours..."
-                            className="w-full bg-secondary/50 border border-border rounded-2xl py-4 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-foreground/30"
-                        />
+                        <div className="relative w-full">
+                            <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                className="w-full bg-secondary/50 border border-border rounded-2xl py-4 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-foreground"
+                                placeholder=""
+                            />
+                            <AnimatePresence mode="wait">
+                                {!input && (
+                                    <motion.span
+                                        key={placeholderIndex}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground/30 pointer-events-none text-sm whitespace-nowrap overflow-hidden"
+                                    >
+                                        {placeholders[placeholderIndex]}
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </div>
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || isLoading}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-primary text-white hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-primary text-white hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed z-10"
                         >
                             <Send size={20} />
                         </button>
