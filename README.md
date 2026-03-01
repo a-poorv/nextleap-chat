@@ -2,7 +2,8 @@
 
 A premium, high-performance RAG (Retrieval-Augmented Generation) chatbot built for NextLeap Fellowship inquiries. This assistant uses a local Vector Database and the Llama-3-70B model (via Groq) to provide structured, accurate information about fellowships.
 
-![NextLeap Banner](https://nextleap.app/images/logo.png)
+<img width="1919" height="946" alt="image" src="https://github.com/user-attachments/assets/7bbda06b-d299-4542-99ba-adfefc88075b" />
+
 
 ## ✨ Features
 
