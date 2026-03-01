@@ -43,6 +43,30 @@ export default function ChatInterface() {
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // 1. Load history from localStorage on startup
+    useEffect(() => {
+        const savedSessions = localStorage.getItem('nextleap_chats');
+        if (savedSessions) {
+            try {
+                const parsed = JSON.parse(savedSessions);
+                // Convert string dates back to Date objects
+                const formatted = parsed.map((s: any) => ({
+                    ...s,
+                    timestamp: new Date(s.timestamp),
+                    messages: s.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }))
+                }));
+                setSessions(formatted);
+            } catch (e) {
+                console.error("Failed to parse saved chats", e);
+            }
+        }
+    }, []);
+
+    // 2. Save history to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('nextleap_chats', JSON.stringify(sessions));
+    }, [sessions]);
+
     const placeholders = [
         "Ask about Product Management...",
         "Who is teaching the UX course?",
@@ -100,7 +124,11 @@ export default function ChatInterface() {
                 content: data.content,
                 timestamp: new Date(),
             };
-            setMessages((prev) => [...prev, botMessage]);
+            const finalMessages = [...newMessages, botMessage];
+            setMessages(finalMessages);
+
+            // Auto-save/update session in history immediately
+            upsertSession(currentSessionId, finalMessages);
         } catch (error) {
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
@@ -165,6 +193,18 @@ export default function ChatInterface() {
         setFeedback({});
     };
 
+    const deleteSession = (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        setSessions(prev => {
+            const updated = prev.filter(s => s.id !== id);
+            localStorage.setItem('nextleap_chats', JSON.stringify(updated));
+            return updated;
+        });
+        if (currentSessionId === id) {
+            handleNewChat();
+        }
+    };
+
     return (
         <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
             {/* Sidebar */}
@@ -190,17 +230,25 @@ export default function ChatInterface() {
                         <p className="text-[10px] text-foreground/30 px-3 italic">No past inquiries yet</p>
                     ) : (
                         sessions.map((session) => (
-                            <button
-                                key={session.id}
-                                onClick={() => loadSession(session)}
-                                className={cn(
-                                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all group text-left",
-                                    currentSessionId === session.id ? "bg-emerald-500/10 text-emerald-400" : "hover:bg-secondary/20 text-foreground/60 hover:text-foreground"
-                                )}
-                            >
-                                <MessageSquare size={14} className="shrink-0 opacity-50 group-hover:opacity-100" />
-                                <span className="truncate">{session.title}</span>
-                            </button>
+                            <div key={session.id} className="group relative">
+                                <button
+                                    onClick={() => loadSession(session)}
+                                    className={cn(
+                                        "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-all text-left",
+                                        currentSessionId === session.id ? "bg-emerald-500/10 text-emerald-400" : "hover:bg-secondary/20 text-foreground/60 hover:text-foreground"
+                                    )}
+                                >
+                                    <MessageSquare size={14} className="shrink-0 opacity-50 group-hover:opacity-100" />
+                                    <span className="truncate pr-6">{session.title}</span>
+                                </button>
+                                <button
+                                    onClick={(e) => deleteSession(e, session.id)}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-foreground/30 hover:text-red-400 transition-all"
+                                    title="Delete Chat"
+                                >
+                                    <Trash2 size={12} />
+                                </button>
+                            </div>
                         ))
                     )}
 
