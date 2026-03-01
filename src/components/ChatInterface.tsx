@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, User, Bot, Sparkles, Sidebar as SidebarIcon, Plus, ExternalLink } from 'lucide-react';
+import { Send, User, Bot, Sparkles, Sidebar as SidebarIcon, Plus, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import ReactMarkdown from 'react-markdown';
@@ -30,6 +30,7 @@ export default function ChatInterface() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [feedback, setFeedback] = useState<Record<string, 'like' | 'dislike'>>({});
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -84,6 +85,12 @@ export default function ChatInterface() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleFeedback = (id: string, type: 'like' | 'dislike') => {
+        setFeedback(prev => ({ ...prev, [id]: type }));
+        // Internally, this is where you'd call an API like /api/feedback
+        console.log(`Feedback received for ${id}: ${type}`);
     };
 
     return (
@@ -190,10 +197,26 @@ export default function ChatInterface() {
                                     </ReactMarkdown>
                                 </div>
                                 {msg.role === 'assistant' && (
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <button className="text-[10px] flex items-center gap-1 text-emerald-500 hover:underline">
-                                            <ExternalLink size={10} />
-                                            View Curriculum
+                                    <div className="flex items-center gap-3 mt-2 px-1">
+                                        <button
+                                            onClick={() => handleFeedback(msg.id, 'like')}
+                                            className={cn(
+                                                "p-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-[10px]",
+                                                feedback[msg.id] === 'like' ? "bg-emerald-500/20 text-emerald-400" : "hover:bg-secondary/50 text-foreground/40 hover:text-emerald-400"
+                                            )}
+                                        >
+                                            <ThumbsUp size={12} className={feedback[msg.id] === 'like' ? "fill-emerald-400" : ""} />
+                                            Helpful
+                                        </button>
+                                        <button
+                                            onClick={() => handleFeedback(msg.id, 'dislike')}
+                                            className={cn(
+                                                "p-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-[10px]",
+                                                feedback[msg.id] === 'dislike' ? "bg-red-500/20 text-red-400" : "hover:bg-secondary/50 text-foreground/40 hover:text-red-400"
+                                            )}
+                                        >
+                                            <ThumbsDown size={12} className={feedback[msg.id] === 'dislike' ? "fill-red-400" : ""} />
+                                            Not Helpful
                                         </button>
                                     </div>
                                 )}
