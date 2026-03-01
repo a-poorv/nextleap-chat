@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, User, Bot, Sparkles, Sidebar as SidebarIcon, Plus, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Send, User, Bot, Sparkles, Sidebar as SidebarIcon, Plus, ExternalLink, ThumbsUp, ThumbsDown, Trash2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import ReactMarkdown from 'react-markdown';
@@ -111,6 +111,19 @@ export default function ChatInterface() {
         console.log(`Feedback received for ${id}: ${type}`);
     };
 
+    const handleNewChat = () => {
+        setMessages([
+            {
+                id: '1',
+                role: 'assistant',
+                content: "Hello! I'm your NextLeap Assistant. I can help you with questions about our Product Management, UX Design, Data Analytics, Business Analytics, and GenAI cohorts. What would you like to know today?",
+                timestamp: new Date(),
+            },
+        ]);
+        setFeedback({});
+        setInput('');
+    };
+
     return (
         <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
             {/* Sidebar */}
@@ -122,7 +135,10 @@ export default function ChatInterface() {
                     <span className="font-bold text-xl tracking-tight text-primary">NextLeap</span>
                 </div>
 
-                <button className="flex items-center gap-2 w-full p-3 rounded-xl border border-border hover:bg-secondary/30 transition-all text-sm font-medium">
+                <button
+                    onClick={handleNewChat}
+                    className="flex items-center gap-2 w-full p-3 rounded-xl border border-border hover:bg-secondary/30 transition-all text-sm font-medium"
+                >
                     <Plus size={18} />
                     New Inquiry
                 </button>
@@ -151,6 +167,13 @@ export default function ChatInterface() {
                         </h2>
                     </div>
                     <div className="flex items-center gap-4">
+                        <button
+                            onClick={handleNewChat}
+                            className="p-2 rounded-lg hover:bg-secondary/40 text-foreground/40 hover:text-red-400 transition-colors"
+                            title="Clear Chat"
+                        >
+                            <Trash2 size={18} />
+                        </button>
                         <button className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                             Live Support
                         </button>
